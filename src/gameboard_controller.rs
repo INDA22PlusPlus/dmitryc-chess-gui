@@ -2,12 +2,12 @@
 
 use piston::GenericEvent;
 use piston::input::{Button, MouseButton};
-use dynchess_lib::ChessBoard;
+use chess_lib_temp_clone::ChessBoard;
 
 /// Handles events for Chess.
 pub struct ChessController {
     /// Stores the chess board.
-    pub chess_board: ChessBoard,
+    pub chess_engine: ChessBoard,
     /// Stores the selected square.
     pub selected_square: Option<[u8; 2]>,
     /// Stores the hovered square.
@@ -20,7 +20,7 @@ impl ChessController {
     /// Creates a new chess board controller.
     pub fn new() -> ChessController {
         ChessController {
-            chess_board: ChessBoard::init_position(),
+            chess_engine: ChessBoard::init_position(),
             selected_square: None,
             hovered_square: None,
             mouse_coords: [0.0; 2]

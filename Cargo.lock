@@ -113,6 +113,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "chess_lib_temp_clone"
+version = "0.1.0"
+
+[[package]]
 name = "cocoa"
 version = "0.23.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -413,11 +417,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "dynchess-lib"
-version = "0.1.0"
-source = "git+https://github.com/INDA22PlusPlus/imou-chess.git#6848167c02439b45bd1d2bb755993d086800e8c4"
-
-[[package]]
 name = "either"
 version = "1.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -682,7 +681,7 @@ dependencies = [
 name = "gui_test"
 version = "0.1.0"
 dependencies = [
- "dynchess-lib",
+ "chess_lib_temp_clone",
  "piston",
  "piston2d-graphics",
  "piston2d-opengl_graphics",

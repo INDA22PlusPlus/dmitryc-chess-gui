@@ -1,8 +1,11 @@
 //! Chess board view.
 
+use std::path::Path;
 use graphics::types::Color;
-use graphics::{Context, Graphics, Line, Rectangle, Text};
-// use piston_window::Glyphs;
+use graphics::{Context, Graphics, Line, Rectangle, Text, Image};
+use opengl_graphics::{Texture, TextureSettings};
+
+use chess_lib_temp_clone::ChessPiece;
 
 use crate::gameboard_controller::ChessController;
 
@@ -68,6 +71,7 @@ impl ChessBoardView {
         g: &mut G,
     ) {
         let ref settings = self.settings;
+        let ref board = controller.chess_engine.board;
 
 
         // TODO: Ranks and flanks
@@ -107,6 +111,7 @@ impl ChessBoardView {
                     g,
                 );
 
+                // TODO: Fix duplication
                 if let Some(square) = controller.hovered_square {
                     let square_start_coords = [
                         square[0] as f64 * settings.square_side,
@@ -120,6 +125,7 @@ impl ChessBoardView {
                         settings.square_side,
                     ];
 
+                    // TODO: Fix duplication
                     Rectangle::new(settings.hovered_square_background_color).draw(
                         selected_square_rect,
                         &c.draw_state,
@@ -147,6 +153,14 @@ impl ChessBoardView {
                         c.transform,
                         g,
                     );
+                }
+
+                let piece = board[(x + y) as usize];
+                if !(piece == ChessPiece::Empty) {
+                    let w_pawn = Texture::from_path(Path::new("sprites/w_pawn.png"),
+                                                    &TextureSettings::new()).unwrap();
+                    let square_drawable = Image::new().rect(square_rect);
+                    square_drawable.draw(&w_pawn, &c.draw_state, c.transform, g);
                 }
             }
         }
