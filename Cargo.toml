@@ -1,5 +1,5 @@
 [package]
-name = "gui_test"
+name = "chess_gui"
 version = "0.1.0"
 edition = "2021"
 

@@ -7,10 +7,10 @@ use opengl_graphics::{Texture, TextureSettings};
 
 use chess_lib_temp_clone::ChessPiece;
 
-use crate::gameboard_controller::ChessController;
+use crate::chess_controller::ChessController;
 
 /// Stores chess board view settings.
-pub struct ChessBoardViewSettings {
+pub struct ChessGraphicsSettings {
     /// Position from left-top corner.
     pub offset: [f64; 2],
     /// Size of chess board along horizontal and vertical edge.
@@ -29,13 +29,13 @@ pub struct ChessBoardViewSettings {
     pub hovered_square_background_color: Color,
 }
 
-impl ChessBoardViewSettings {
+impl ChessGraphicsSettings {
     /// Creates new chess board view settings.
-    pub fn new() -> ChessBoardViewSettings {
+    pub fn new() -> ChessGraphicsSettings {
         let size = 500.0;
         let square_amount = 8.0;
         let square_side = size / square_amount;
-        ChessBoardViewSettings {
+        ChessGraphicsSettings {
             offset: [50.0; 2],
             size,
             square_amount,
@@ -50,15 +50,15 @@ impl ChessBoardViewSettings {
 }
 
 /// Stores visual information about a chess board.
-pub struct ChessBoardView {
+pub struct ChessGraphics {
     /// Stores chess board view settings.
-    pub settings: ChessBoardViewSettings,
+    pub settings: ChessGraphicsSettings,
 }
 
-impl ChessBoardView {
+impl ChessGraphics {
     /// Creates a new chess board view.
-    pub fn new(settings: ChessBoardViewSettings) -> ChessBoardView {
-        ChessBoardView {
+    pub fn new(settings: ChessGraphicsSettings) -> ChessGraphics {
+        ChessGraphics {
             settings: settings,
         }
     }
