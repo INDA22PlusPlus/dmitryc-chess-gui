@@ -1,16 +1,16 @@
-//! Gameboard view.
+//! Chess board view.
 
 use graphics::types::Color;
-use graphics::{Context, Graphics, Line, Rectangle};
+use graphics::{Context, Graphics, Line, Rectangle, Text};
+// use piston_window::Glyphs;
 
+use crate::gameboard_controller::ChessController;
 
-use crate::gameboard_controller::GameboardController;
-
-/// Stores gameboard view settings.
-pub struct GameboardViewSettings {
+/// Stores chess board view settings.
+pub struct ChessBoardViewSettings {
     /// Position from left-top corner.
     pub offset: [f64; 2],
-    /// Size of gameboard along horizontal and vertical edge.
+    /// Size of chess board along horizontal and vertical edge.
     pub size: f64,
     /// Amount of squares
     pub square_amount: f64,
@@ -22,13 +22,13 @@ pub struct GameboardViewSettings {
     pub black_color: Color,
 }
 
-impl GameboardViewSettings {
-    /// Creates new gameboard view settings.
-    pub fn new() -> GameboardViewSettings {
+impl ChessBoardViewSettings {
+    /// Creates new chess board view settings.
+    pub fn new() -> ChessBoardViewSettings {
         let size = 500.0;
         let square_amount = 8.0;
         let square_side = size / square_amount;
-        GameboardViewSettings {
+        ChessBoardViewSettings {
             offset: [50.0; 2],
             size,
             square_amount,
@@ -39,28 +39,44 @@ impl GameboardViewSettings {
     }
 }
 
-/// Stores visual information about a gameboard.
-pub struct GameboardView {
-    /// Stores gameboard view settings.
-    pub settings: GameboardViewSettings,
+/// Stores visual information about a chess board.
+pub struct ChessBoardView {
+    /// Stores chess board view settings.
+    pub settings: ChessBoardViewSettings,
 }
 
-impl GameboardView {
-    /// Creates a new gameboard view.
-    pub fn new(settings: GameboardViewSettings) -> GameboardView {
-        GameboardView {
+impl ChessBoardView {
+    /// Creates a new chess board view.
+    pub fn new(settings: ChessBoardViewSettings) -> ChessBoardView {
+        ChessBoardView {
             settings: settings,
         }
     }
 
-    /// Draw gameboard.
+    /// Draw chess board.
     pub fn draw<G: Graphics>(
         &self,
-        controller: &GameboardController,
+        controller: &ChessController,
         c: &Context,
         g: &mut G,
     ) {
         let ref settings = self.settings;
+
+
+        // TODO: Ranks and flanks
+        // let mut glyphs = Glyphs::from_bytes(
+        //     font,
+        //     window.create_texture_context(),
+        //     TextureSettings::new(),
+        // );
+
+        // Text::new_color([0.0, 0.0, 0.0, 1.0], 32).draw(
+        //     "test",
+        //     &mut glyphs,
+        //     &c.draw_state,
+        //     c.transform,
+        //     g
+        // );
 
         // Draw board
         for x in 0..=7 {

@@ -4,11 +4,9 @@ use piston::{EventLoop, RenderEvent, WindowSettings};
 use opengl_graphics::{OpenGL, GlGraphics};
 use graphics::{clear};
 
-pub use crate::gameboard::Gameboard;
-pub use crate::gameboard_controller::GameboardController;
-pub use crate::gameboard_view::{GameboardView, GameboardViewSettings};
+pub use crate::gameboard_controller::ChessController;
+pub use crate::gameboard_view::{ChessBoardView, ChessBoardViewSettings};
 
-mod gameboard;
 mod gameboard_controller;
 mod gameboard_view;
 
@@ -25,10 +23,9 @@ fn main() {
     let mut events = Events::new(EventSettings::new().lazy(true));
     let mut gl = GlGraphics::new(opengl);
 
-    let gameboard = Gameboard::new();
-    let mut gameboard_controller = GameboardController::new(gameboard);
-    let gameboard_view_settings = GameboardViewSettings::new();
-    let gameboard_view = GameboardView::new(gameboard_view_settings);
+    let mut gameboard_controller = ChessController::new();
+    let gameboard_view_settings = ChessBoardViewSettings::new();
+    let gameboard_view = ChessBoardView::new(gameboard_view_settings);
 
     while let Some(e) = events.next(&mut window) {
         gameboard_controller.event(&e);

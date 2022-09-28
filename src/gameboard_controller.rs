@@ -1,20 +1,20 @@
-//! Gameboard controller.
+//! Chess controller.
 
 use piston::GenericEvent;
 
-use crate::Gameboard;
+use dynchess_lib::ChessBoard;
 
-/// Handles events for Sudoku game.
-pub struct GameboardController {
-    /// Stores the gameboard state.
-    pub gameboard: Gameboard,
+/// Handles events for Chess.
+pub struct ChessController {
+    /// Stores the chess board state.
+    pub chess_board: ChessBoard,
 }
 
-impl GameboardController {
-    /// Creates a new gameboard controller.
-    pub fn new(gameboard: Gameboard) -> GameboardController {
-        GameboardController {
-            gameboard: gameboard,
+impl ChessController {
+    /// Creates a new chess board controller.
+    pub fn new() -> ChessController {
+        ChessController {
+            chess_board: ChessBoard::init_position(),
         }
     }
 

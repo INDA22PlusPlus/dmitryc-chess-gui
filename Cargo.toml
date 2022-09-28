@@ -10,3 +10,6 @@ piston = "0.53.1"
 pistoncore-glutin_window = "0.70.1"
 piston2d-graphics = "0.42.0"
 piston2d-opengl_graphics = "0.81.0"
+piston_window = "0.124.0"
+
+dynchess-lib = { git = "https://github.com/INDA22PlusPlus/imou-chess.git" }
