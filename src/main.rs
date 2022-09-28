@@ -28,7 +28,12 @@ fn main() {
     let gameboard_view = ChessBoardView::new(gameboard_view_settings);
 
     while let Some(e) = events.next(&mut window) {
-        gameboard_controller.event(&e);
+        gameboard_controller.event(
+            gameboard_view.settings.offset,
+            gameboard_view.settings.size,
+            gameboard_view.settings.square_amount,
+            &e,
+        );
         if let Some(args) = e.render_args() {
             gl.draw(args.viewport(), |c, g| {
                 clear([0.4, 0.4, 0.4, 1.0], g);

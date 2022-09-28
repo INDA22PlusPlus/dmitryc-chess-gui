@@ -20,6 +20,10 @@ pub struct ChessBoardViewSettings {
     pub white_color: Color,
     /// Black color.
     pub black_color: Color,
+    /// Selected square color
+    pub selected_square_background_color: Color,
+    /// Hovered square color
+    pub hovered_square_background_color: Color,
 }
 
 impl ChessBoardViewSettings {
@@ -35,8 +39,11 @@ impl ChessBoardViewSettings {
             square_side,
             white_color: [1.0, 1.0, 0.9, 1.0],
             black_color: [0.30, 0.15, 0.15, 1.0],
+            selected_square_background_color: [0.3, 0.3, 0.5, 1.0],
+            hovered_square_background_color: [0.7, 0.75, 0.9, 1.0],
         }
     }
+
 }
 
 /// Stores visual information about a chess board.
@@ -99,6 +106,48 @@ impl ChessBoardView {
                     c.transform,
                     g,
                 );
+
+                if let Some(square) = controller.hovered_square {
+                    let square_start_coords = [
+                        square[0] as f64 * settings.square_side,
+                        square[1] as f64 * settings.square_side,
+                    ];
+
+                    let selected_square_rect = [
+                        settings.offset[0] + square_start_coords[0],
+                        settings.offset[1] + square_start_coords[1],
+                        settings.square_side,
+                        settings.square_side,
+                    ];
+
+                    Rectangle::new(settings.hovered_square_background_color).draw(
+                        selected_square_rect,
+                        &c.draw_state,
+                        c.transform,
+                        g,
+                    );
+                }
+
+                if let Some(square) = controller.selected_square {
+                    let square_start_coords = [
+                        square[0] as f64 * settings.square_side,
+                        square[1] as f64 * settings.square_side,
+                    ];
+
+                    let selected_square_rect = [
+                        settings.offset[0] + square_start_coords[0],
+                        settings.offset[1] + square_start_coords[1],
+                        settings.square_side,
+                        settings.square_side,
+                    ];
+
+                    Rectangle::new(settings.selected_square_background_color).draw(
+                        selected_square_rect,
+                        &c.draw_state,
+                        c.transform,
+                        g,
+                    );
+                }
             }
         }
     }
