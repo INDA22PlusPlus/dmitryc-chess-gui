@@ -1,3 +1,3 @@
-# dmitryc-chess-gui
+# Chess GUI
 
 A simple chess GUI
