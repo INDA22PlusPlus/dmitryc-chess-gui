@@ -5,7 +5,7 @@ use graphics::types::Color;
 use graphics::{Context, Graphics, Line, Rectangle, Text, Image};
 use opengl_graphics::{Texture, TextureSettings};
 
-use chess_lib_temp_clone::ChessPiece;
+use dynchess_lib::ChessPiece;
 
 use crate::chess_controller::ChessController;
 
@@ -64,15 +64,16 @@ impl ChessGraphics {
     }
 
     /// Draw chess board.
-    pub fn draw<G: Graphics>(
+    pub fn draw<G: Graphics<Texture = Texture>>(
         &self,
         controller: &ChessController,
         c: &Context,
         g: &mut G,
     ) {
         let ref settings = self.settings;
-        let ref board = controller.chess_engine.board;
-
+        let ref board = controller.chess_engine.get_board();
+        let w_pawn = Texture::from_path(Path::new("sprites/w_pawn.png"),
+                                        &TextureSettings::new()).unwrap();
 
         // TODO: Ranks and flanks
         // let mut glyphs = Glyphs::from_bytes(
@@ -155,10 +156,11 @@ impl ChessGraphics {
                     );
                 }
 
-                let piece = board[(x + y) as usize];
+                let piece = board[(x + y * 8) as usize];
+                // println!("{:?} {}", piece, x + y * 8);
                 if !(piece == ChessPiece::Empty) {
-                    let w_pawn = Texture::from_path(Path::new("sprites/w_pawn.png"),
-                                                    &TextureSettings::new()).unwrap();
+                    // let w_pawn = Texture::from_path(Path::new("sprites/w_pawn.png"),
+                    //                                 &TextureSettings::new()).unwrap();
                     let square_drawable = Image::new().rect(square_rect);
                     square_drawable.draw(&w_pawn, &c.draw_state, c.transform, g);
                 }

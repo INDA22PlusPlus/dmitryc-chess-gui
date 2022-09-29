@@ -113,8 +113,16 @@ dependencies = [
 ]
 
 [[package]]
-name = "chess_lib_temp_clone"
+name = "chess_gui"
 version = "0.1.0"
+dependencies = [
+ "dynchess-lib",
+ "piston",
+ "piston2d-graphics",
+ "piston2d-opengl_graphics",
+ "piston_window",
+ "pistoncore-glutin_window",
+]
 
 [[package]]
 name = "cocoa"
@@ -417,6 +425,11 @@ dependencies = [
 ]
 
 [[package]]
+name = "dynchess-lib"
+version = "0.1.0"
+source = "git+https://github.com/INDA22PlusPlus/imou-chess.git#200cba43e9e88b98db37e59cab6f2708f9bcade4"
+
+[[package]]
 name = "either"
 version = "1.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -675,18 +688,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3da5951a1569dbab865c6f2a863efafff193a93caf05538d193e9e3816d21696"
 dependencies = [
  "gl_generator 0.14.0",
-]
-
-[[package]]
-name = "gui_test"
-version = "0.1.0"
-dependencies = [
- "chess_lib_temp_clone",
- "piston",
- "piston2d-graphics",
- "piston2d-opengl_graphics",
- "piston_window",
- "pistoncore-glutin_window",
 ]
 
 [[package]]

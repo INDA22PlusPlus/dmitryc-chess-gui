@@ -2,7 +2,7 @@
 
 use piston::GenericEvent;
 use piston::input::{Button, MouseButton};
-use chess_lib_temp_clone::ChessBoard;
+use dynchess_lib::ChessBoard;
 
 /// Handles events for Chess.
 pub struct ChessController {
