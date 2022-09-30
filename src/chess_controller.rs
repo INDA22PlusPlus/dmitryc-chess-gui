@@ -1,8 +1,10 @@
 //! Chess controller.
 
+use std::borrow::Borrow;
+use std::num::IntErrorKind::Empty;
 use piston::GenericEvent;
 use piston::input::{Button, MouseButton};
-use dynchess_lib::ChessBoard;
+use dynchess_lib::{ChessBoard, ChessPiece};
 
 /// Handles events for Chess.
 pub struct ChessController {
@@ -43,7 +45,19 @@ impl ChessController {
                                         (y / size * square_amount) as u8);
             self.hovered_square = Some([coords_x, coords_y]);
             if let Some(Button::Mouse(MouseButton::Left)) = e.press_args() {
-                self.selected_square = Some([coords_x, coords_y]);
+                let to_coords_u8 = coords_x + coords_y * 8;
+                if self.selected_square.is_some(){
+                    let selected_coords = self.selected_square.unwrap();
+                    let selected_coords_to_u8 = selected_coords[0] + selected_coords[1] * 8;
+                    println!("{:?}, {:?}", selected_coords_to_u8, to_coords_u8);
+                    self.chess_engine.drag(selected_coords_to_u8, to_coords_u8);
+                    self.selected_square = None;
+                }
+                else {
+                    if !(self.chess_engine.get_piece(to_coords_u8) == ChessPiece::Empty) {
+                        self.selected_square = Some([coords_x, coords_y])
+                    }
+                }
             }
         }
     }

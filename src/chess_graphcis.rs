@@ -72,6 +72,7 @@ impl ChessGraphics {
     fn get_textures() -> HashMap<ChessPiece, Texture> {
         let mut textures = HashMap::new();
 
+        // TODO: Fix duplication
         // White Pieces
 
         textures.insert(ChessPiece::WPawn,
@@ -201,7 +202,6 @@ impl ChessGraphics {
                         settings.square_side,
                     ];
 
-                    // TODO: Fix duplication
                     Rectangle::new(settings.hovered_square_background_color).draw(
                         selected_square_rect,
                         &c.draw_state,
@@ -210,6 +210,7 @@ impl ChessGraphics {
                     );
                 }
 
+                // TODO: Fix duplication
                 if let Some(square) = controller.selected_square {
                     let square_start_coords = [
                         square[0] as f64 * settings.square_side,
