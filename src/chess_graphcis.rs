@@ -171,14 +171,14 @@ impl ChessGraphics {
             for y in 0..=7 {
                 let square_rect = [
                     settings.offset[0] + settings.square_side * x as f64,
-                    settings.offset[1] + settings.square_side * y as f64,
+                    settings.offset[1] + settings.square_side * (7 - y) as f64,
                     settings.square_side,
                     settings.square_side,
                 ];
 
-                let mut color = settings.white_color;
+                let mut color = settings.black_color;
                 if x % 2 + y % 2 == 1 {
-                    color = settings.black_color;
+                    color = settings.white_color;
                 }
 
                 Rectangle::new(color).draw(
@@ -187,50 +187,61 @@ impl ChessGraphics {
                     c.transform,
                     g,
                 );
+            }
+        }
 
-                // TODO: Fix duplication
-                if let Some(square) = controller.hovered_square {
-                    let square_start_coords = [
-                        square[0] as f64 * settings.square_side,
-                        square[1] as f64 * settings.square_side,
-                    ];
+        // TODO: Fix duplication
+        if let Some(square) = controller.hovered_square {
+            let square_start_coords = [
+                square[0] as f64 * settings.square_side,
+                square[1] as f64 * settings.square_side,
+            ];
 
-                    let selected_square_rect = [
-                        settings.offset[0] + square_start_coords[0],
-                        settings.offset[1] + square_start_coords[1],
-                        settings.square_side,
-                        settings.square_side,
-                    ];
+            let selected_square_rect = [
+                settings.offset[0] + square_start_coords[0],
+                settings.offset[1] + square_start_coords[1],
+                settings.square_side,
+                settings.square_side,
+            ];
 
-                    Rectangle::new(settings.hovered_square_background_color).draw(
-                        selected_square_rect,
-                        &c.draw_state,
-                        c.transform,
-                        g,
-                    );
-                }
+            Rectangle::new(settings.hovered_square_background_color).draw(
+                selected_square_rect,
+                &c.draw_state,
+                c.transform,
+                g,
+            );
+        }
 
-                // TODO: Fix duplication
-                if let Some(square) = controller.selected_square {
-                    let square_start_coords = [
-                        square[0] as f64 * settings.square_side,
-                        square[1] as f64 * settings.square_side,
-                    ];
+        // TODO: Fix duplication
+        if let Some(square) = controller.selected_square {
+            let square_start_coords = [
+                square[0] as f64 * settings.square_side,
+                square[1] as f64 * settings.square_side,
+            ];
 
-                    let selected_square_rect = [
-                        settings.offset[0] + square_start_coords[0],
-                        settings.offset[1] + square_start_coords[1],
-                        settings.square_side,
-                        settings.square_side,
-                    ];
+            let selected_square_rect = [
+                settings.offset[0] + square_start_coords[0],
+                settings.offset[1] + square_start_coords[1],
+                settings.square_side,
+                settings.square_side,
+            ];
 
-                    Rectangle::new(settings.selected_square_background_color).draw(
-                        selected_square_rect,
-                        &c.draw_state,
-                        c.transform,
-                        g,
-                    );
-                }
+            Rectangle::new(settings.selected_square_background_color).draw(
+                selected_square_rect,
+                &c.draw_state,
+                c.transform,
+                g,
+            );
+        }
+
+        for x in 0..=7 {
+            for y in 0..=7 {
+                let square_rect = [
+                    settings.offset[0] + settings.square_side * x as f64,
+                    settings.offset[1] + settings.square_side * (7 - y) as f64,
+                    settings.square_side,
+                    settings.square_side,
+                ];
 
                 let piece = board[(x + y * 8) as usize];
                 // println!("{:?} {}", piece, x + y * 8);
@@ -242,17 +253,5 @@ impl ChessGraphics {
                 }
             }
         }
-
-        // let square_drawable = Image::new().rect(square(settings.offset[0],
-        //                                                settings.offset[1],
-        //                                                settings.square_side
-        // ));
-        // square_drawable.draw(&w_pawn, &c.draw_state, c.transform, g);
-        //
-        // let square_drawable = Image::new().rect(square(settings.offset[0] + settings.square_side,
-        //                                                settings.offset[1],
-        //                                                settings.square_side
-        // ));
-        // square_drawable.draw(&w_pawn, &c.draw_state, c.transform, g);
     }
 }

@@ -42,14 +42,14 @@ impl ChessController {
         if x >= 0.0 && x < size && y >= 0.0 && y < size {
             // Compute the cell position.
             let (coords_x, coords_y) = ((x / size * square_amount) as u8,
-                                        (y / size * square_amount) as u8);
+                                        ((y / size * square_amount)) as u8);
             self.hovered_square = Some([coords_x, coords_y]);
             if let Some(Button::Mouse(MouseButton::Left)) = e.press_args() {
-                let to_coords_u8 = coords_x + coords_y * 8;
+                let to_coords_u8 = coords_x + (7 - coords_y) * 8;
                 if self.selected_square.is_some(){
                     let selected_coords = self.selected_square.unwrap();
-                    let selected_coords_to_u8 = selected_coords[0] + selected_coords[1] * 8;
-                    println!("{:?}, {:?}", selected_coords_to_u8, to_coords_u8);
+                    let selected_coords_to_u8 = selected_coords[0] + (7 - selected_coords[1]) * 8;
+                    // println!("{:?}, {:?}", selected_coords_to_u8, to_coords_u8);
                     self.chess_engine.drag(selected_coords_to_u8, to_coords_u8);
                     self.selected_square = None;
                 }
