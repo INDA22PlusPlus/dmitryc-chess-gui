@@ -23,21 +23,21 @@ fn main() {
     let mut events = Events::new(EventSettings::new().lazy(true));
     let mut gl = GlGraphics::new(opengl);
 
-    let mut gameboard_controller = ChessController::new();
-    let gameboard_view_settings = ChessGraphicsSettings::new();
-    let gameboard_view = ChessGraphics::new(gameboard_view_settings);
+    let mut chess_controller = ChessController::new();
+    let chess_view_settings = ChessGraphicsSettings::new();
+    let chess_view = ChessGraphics::new(chess_view_settings);
 
     while let Some(e) = events.next(&mut window) {
-        gameboard_controller.event(
-            gameboard_view.settings.offset,
-            gameboard_view.settings.size,
-            gameboard_view.settings.square_amount,
+        chess_controller.event(
+            chess_view.settings.offset,
+            chess_view.settings.size,
+            chess_view.settings.square_amount,
             &e,
         );
         if let Some(args) = e.render_args() {
             gl.draw(args.viewport(), |c, g| {
                 clear([0.4, 0.4, 0.4, 1.0], g);
-                gameboard_view.draw(&gameboard_controller, &c, g);
+                chess_view.draw(&chess_controller, &c, g);
             });
         }
     }

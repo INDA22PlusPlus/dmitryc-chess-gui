@@ -1,11 +1,13 @@
 //! Chess board view.
 
+use std::collections::HashMap;
 use std::path::Path;
 use graphics::types::Color;
 use graphics::{Context, Graphics, Line, Rectangle, Text, Image};
 use opengl_graphics::{Texture, TextureSettings};
 
-use dynchess_lib::ChessPiece;
+use dynchess_lib::{ChessPiece, ChessPieceType};
+use graphics::rectangle::square;
 
 use crate::chess_controller::ChessController;
 
@@ -53,14 +55,89 @@ impl ChessGraphicsSettings {
 pub struct ChessGraphics {
     /// Stores chess board view settings.
     pub settings: ChessGraphicsSettings,
+    pub textures: HashMap<ChessPiece, Texture>,
 }
 
 impl ChessGraphics {
     /// Creates a new chess board view.
     pub fn new(settings: ChessGraphicsSettings) -> ChessGraphics {
+        let textures = Self::get_textures();
+
         ChessGraphics {
-            settings: settings,
+            settings,
+            textures,
         }
+    }
+
+    fn get_textures() -> HashMap<ChessPiece, Texture> {
+        let mut textures = HashMap::new();
+
+        // White Pieces
+
+        textures.insert(ChessPiece::WPawn,
+                        Texture::from_path(Path::new("sprites/w_pawn.png"),
+                                                              &TextureSettings::new()).unwrap()
+        );
+
+        textures.insert(ChessPiece::WBishop,
+                        Texture::from_path(Path::new("sprites/w_bishop.png"),
+                                           &TextureSettings::new()).unwrap()
+        );
+
+        textures.insert(ChessPiece::WKnight,
+                        Texture::from_path(Path::new("sprites/w_knight.png"),
+                                           &TextureSettings::new()).unwrap()
+        );
+
+        textures.insert(ChessPiece::WRook,
+                        Texture::from_path(Path::new("sprites/w_rook.png"),
+                                           &TextureSettings::new()).unwrap()
+        );
+
+        textures.insert(ChessPiece::WQueen,
+                        Texture::from_path(Path::new("sprites/w_queen.png"),
+                                           &TextureSettings::new()).unwrap()
+        );
+
+        textures.insert(ChessPiece::WKing,
+                        Texture::from_path(Path::new("sprites/w_king.png"),
+                                           &TextureSettings::new()).unwrap()
+        );
+
+        // Black pieces
+
+        textures.insert(ChessPiece::BPawn,
+                        Texture::from_path(Path::new("sprites/b_pawn.png"),
+                                           &TextureSettings::new()).unwrap()
+        );
+
+        textures.insert(ChessPiece::BBishop,
+                        Texture::from_path(Path::new("sprites/b_bishop.png"),
+                                           &TextureSettings::new()).unwrap()
+        );
+
+        textures.insert(ChessPiece::BKnight,
+                        Texture::from_path(Path::new("sprites/b_knight.png"),
+                                           &TextureSettings::new()).unwrap()
+        );
+
+        textures.insert(ChessPiece::BRook,
+                        Texture::from_path(Path::new("sprites/b_rook.png"),
+                                           &TextureSettings::new()).unwrap()
+        );
+
+        textures.insert(ChessPiece::BQueen,
+                        Texture::from_path(Path::new("sprites/b_queen.png"),
+                                           &TextureSettings::new()).unwrap()
+        );
+
+        textures.insert(ChessPiece::BKing,
+                        Texture::from_path(Path::new("sprites/b_king.png"),
+                                           &TextureSettings::new()).unwrap()
+        );
+
+        textures
+
     }
 
     /// Draw chess board.
@@ -72,8 +149,6 @@ impl ChessGraphics {
     ) {
         let ref settings = self.settings;
         let ref board = controller.chess_engine.get_board();
-        let w_pawn = Texture::from_path(Path::new("sprites/w_pawn.png"),
-                                        &TextureSettings::new()).unwrap();
 
         // TODO: Ranks and flanks
         // let mut glyphs = Glyphs::from_bytes(
@@ -159,12 +234,24 @@ impl ChessGraphics {
                 let piece = board[(x + y * 8) as usize];
                 // println!("{:?} {}", piece, x + y * 8);
                 if !(piece == ChessPiece::Empty) {
-                    // let w_pawn = Texture::from_path(Path::new("sprites/w_pawn.png"),
-                    //                                 &TextureSettings::new()).unwrap();
+                    // println!("{:?}", piece);
+                    let piece_texture = self.textures.get(&piece).unwrap();
                     let square_drawable = Image::new().rect(square_rect);
-                    square_drawable.draw(&w_pawn, &c.draw_state, c.transform, g);
+                    square_drawable.draw(piece_texture.clone(), &c.draw_state, c.transform, g);
                 }
             }
         }
+
+        // let square_drawable = Image::new().rect(square(settings.offset[0],
+        //                                                settings.offset[1],
+        //                                                settings.square_side
+        // ));
+        // square_drawable.draw(&w_pawn, &c.draw_state, c.transform, g);
+        //
+        // let square_drawable = Image::new().rect(square(settings.offset[0] + settings.square_side,
+        //                                                settings.offset[1],
+        //                                                settings.square_side
+        // ));
+        // square_drawable.draw(&w_pawn, &c.draw_state, c.transform, g);
     }
 }
