@@ -24,13 +24,14 @@ pub struct ChessController {
 impl ChessController {
     /// Creates a new chess board controller.
     pub fn new() -> ChessController {
-        ChessController {
+        let chess_controller = ChessController {
             chess_engine: ChessBoard::init_position(),
             selected_square: None,
             hovered_square: None,
             mouse_coords: [0.0; 2],
             networking: Networking::new(),
-        }
+        };
+        chess_controller
     }
 
     /// Handles events.
