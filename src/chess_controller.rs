@@ -5,6 +5,7 @@ use std::num::IntErrorKind::Empty;
 use piston::GenericEvent;
 use piston::input::{Button, MouseButton};
 use dynchess_lib::{ChessBoard, ChessPiece};
+use crate::networking::Networking;
 
 /// Handles events for Chess.
 pub struct ChessController {
@@ -15,7 +16,9 @@ pub struct ChessController {
     /// Stores the hovered square.
     pub hovered_square: Option<[u8; 2]>,
     /// Stores the mouse coords.
-    mouse_coords: [f64; 2]
+    mouse_coords: [f64; 2],
+    /// Networking
+    pub networking: Networking,
 }
 
 impl ChessController {
@@ -25,7 +28,8 @@ impl ChessController {
             chess_engine: ChessBoard::init_position(),
             selected_square: None,
             hovered_square: None,
-            mouse_coords: [0.0; 2]
+            mouse_coords: [0.0; 2],
+            networking: Networking::new(),
         }
     }
 

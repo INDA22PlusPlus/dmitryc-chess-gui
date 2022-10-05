@@ -5,10 +5,12 @@ use opengl_graphics::{OpenGL, GlGraphics};
 use graphics::{clear};
 
 pub use crate::chess_controller::ChessController;
-pub use crate::chess_graphcis::{ChessGraphics, ChessGraphicsSettings};
+pub use crate::chess_graphics::{ChessGraphics, ChessGraphicsSettings};
+pub use crate::networking::Networking;
 
 mod chess_controller;
-mod chess_graphcis;
+mod chess_graphics;
+mod networking;
 
 fn main() {
     let opengl = OpenGL::V3_2;
