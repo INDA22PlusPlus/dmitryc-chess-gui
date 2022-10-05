@@ -11,6 +11,7 @@ pub use crate::networking::Networking;
 mod chess_controller;
 mod chess_graphics;
 mod networking;
+mod networking_protobuf;
 
 fn main() {
     let opengl = OpenGL::V3_2;

@@ -3,11 +3,19 @@ use std::{
     net::{TcpListener, TcpStream},
 };
 use dynchess_lib::ChessBoard;
+use crate::networking_protobuf::{c2s_message, C2sConnectRequest, C2sMessage, S2cMessage};
+use crate::networking_protobuf::c2s_message::Msg::ConnectRequest;
 
 #[derive(PartialEq)]
 pub enum State {
     Playing,
     WaitingForOpponent,
+}
+
+#[derive(PartialEq)]
+pub enum ConnectionType {
+    host(S2cMessage),
+    client(C2sMessage),
 }
 
 pub struct Networking {
@@ -18,12 +26,14 @@ pub struct Networking {
 
     // Networking
     pub stream: TcpStream,
+
+    connection_type: ConnectionType,
 }
 
 impl Networking {
     pub(crate) fn new() -> Networking {
         // A stream and a boolean indicating whether or not the program is a host or a client
-        let (stream, client) = {
+        let (stream, client, connection_type) = {
             let mut args = std::env::args();
             // Skip path to program
             args.next();
@@ -37,15 +47,27 @@ impl Networking {
                 // If the program is running as host we listen on port 8080 until we get a
                 // connection then we return the stream.
                 "--host" => {
-                    let listener = TcpListener::bind("127.0.0.1:8080").unwrap();
-                    (listener.incoming().next().unwrap().unwrap(), false)
+                    let listener = TcpListener::bind("127.0.0.1:1337").unwrap();
+                    (listener.incoming().next().unwrap().unwrap(), false, ConnectionType::host(
+                        S2cMessage{ msg: None })
+                    )
                 }
                 // If the program is running as a client we connect to the specified IP address and
                 // return the stream.
                 "--client" => {
                     let ip = args.next().expect("Expected ip address after --client");
                     let stream = TcpStream::connect(ip).expect("Failed to connect to host");
-                    (stream, true)
+                    // (stream, true, C2sMessage {
+                    //     msg: Some(c2s_message::Msg::ConnectRequest(C2sConnectRequest{
+                    //         game_id: 0, spectate: false
+                    //     }))
+                    // })
+                    (stream, true, ConnectionType::client(C2sMessage{
+                        msg: Some(c2s_message::Msg::ConnectRequest(C2sConnectRequest{
+                            game_id: 1,
+                            spectate: false
+                        }))
+                    }))
                 }
                 // Only --host and --client are valid arguments
                 _ => panic!("Unknown command: {}", host_or_client),
@@ -67,6 +89,7 @@ impl Networking {
                 State::Playing
             },
             stream,
+            connection_type
         }
     }
 
