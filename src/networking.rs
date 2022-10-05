@@ -2,6 +2,7 @@ use std::{
     io::{Read, Write},
     net::{TcpListener, TcpStream},
 };
+use dynchess_lib::ChessBoard;
 
 #[derive(PartialEq)]
 pub enum State {
@@ -11,8 +12,8 @@ pub enum State {
 
 pub struct Networking {
     // Logic
-    player_pos: [u8; 2],
-    enemy_pos: [u8; 2],
+    // pub from: u8,
+    // pub to: u8,
     pub state: State,
 
     // Networking
@@ -25,7 +26,7 @@ impl Networking {
         let (stream, client) = {
             let mut args = std::env::args();
             // Skip path to program
-            let _ = args.next();
+            args.next();
 
             // Get first argument after path to program
             let host_or_client = args
@@ -57,8 +58,8 @@ impl Networking {
             .expect("Failed to set stream to non blocking");
 
         Networking {
-            player_pos: if client { [7 as u8; 2] } else { [0 as u8; 2] },
-            enemy_pos: if client { [0 as u8; 2] } else { [7 as u8; 2] },
+            // from: if client { 0 } else { 63 },
+            // to: if client { 63 } else { 0 },
             // Host starts playing and the client waits
             state: if client {
                 State::WaitingForOpponent
@@ -72,21 +73,30 @@ impl Networking {
     /// Checks if a move packet is available in returns the new positions otherwise it returns none
     pub fn receive_move_packet(&mut self) -> Option<[u8; 2]> {
         let mut buf = [0u8; 2];
-        match self.stream.read(&mut buf) {
+        let packet  = match self.stream.read(&mut buf) {
             Ok(_) => Some(buf),
             Err(e) => match e.kind() {
                 std::io::ErrorKind::WouldBlock => None,
                 _ => panic!("Error: {}", e),
             },
-        }
+        };
+
+        // if packet.is_some() {
+        //     println!("Packet received: {:?}", packet.unwrap());
+        // }
+        packet
     }
 
     /// Sends a move packet of the current position and sets the state to waiting
-    pub fn send_move_packet(&mut self) {
+    pub fn send_move_packet(&mut self, from: u8, to: u8) {
+        // self.from = from;
+        // self.to = to;
+        let mut buf = [from, to];
         self.stream
-            .write(&mut self.player_pos)
+            .write(&buf)
             .expect("Failed to send move packet");
         self.state = State::WaitingForOpponent;
+        // println!("Packet send: {:?}", buf);
     }
 
     pub fn update(&mut self) {
@@ -97,7 +107,7 @@ impl Networking {
                 // position and then set the state to playing
                 if let Some(pos) = self.receive_move_packet() {
                     self.state = State::Playing;
-                    self.enemy_pos = pos;
+                    // self.enemy_pos = pos;
                 }
             }
         }
