@@ -118,7 +118,7 @@ impl Networking {
         };
 
         if packet_ok {
-            println!("Packet is ok");
+            // println!("Packet is ok");
             match &self.connection {
                 ConnectionType::Host(host) => {
                     let packet_decoded = C2sMessage::decode(&buf[0..packet_length]);
@@ -132,7 +132,7 @@ impl Networking {
                                 move_packet.to_square as u8
                             ]);
                             self.state = State::Playing;
-                            println!("changed state, returned new coords");
+                            // println!("changed state, returned new coords");
                         }
                         c2s_message::Msg::ConnectRequest(_) => {
                             self.connection = ConnectionType::Host(
@@ -151,7 +151,7 @@ impl Networking {
                             );
                         }
                     }
-                    println!("{:?}", packet_decoded);
+                    // println!("{:?}", packet_decoded);
                 }
                 ConnectionType::Client(client) => {
                     let packet_decoded = S2cMessage::decode(&buf[0..packet_length]);
@@ -163,11 +163,11 @@ impl Networking {
                                 move_packet.to_square as u8
                             ]);
                             self.state = State::Playing;
-                            println!("changed state, returned new coords");
+                            // println!("changed state, returned new coords");
                         }
                         s2c_message::Msg::ConnectAck(con_ack) => {
                             if con_ack.success {
-                                println!("successful connection");
+                                // println!("successful connection");
                                 self.connection = ConnectionType::Client(
                                     C2sMessage{ msg: None }
                                 );
@@ -176,7 +176,7 @@ impl Networking {
                         s2c_message::Msg::MoveAck(_) => {}
                     }
 
-                    println!("{:?}", packet_decoded);
+                    // println!("{:?}", packet_decoded);
                 }
             };
         }
@@ -197,7 +197,7 @@ impl Networking {
                             promotion: None
                         }))
                     };
-                    println!("changed cords to send them {:?}", coords_vec);
+                    // println!("changed cords to send them {:?}", coords_vec);
                 }
 
                 prost::Message::encode_to_vec(&new_host)
@@ -212,7 +212,7 @@ impl Networking {
                             promotion: None
                         }))
                     };
-                    println!("changed cords to send them {:?}", coords_vec);
+                    // println!("changed cords to send them {:?}", coords_vec);
                 }
 
                 prost::Message::encode_to_vec(&new_client)
