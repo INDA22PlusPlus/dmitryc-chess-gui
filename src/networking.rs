@@ -5,6 +5,7 @@ use std::{
 use dynchess_lib::ChessBoard;
 use crate::networking_protobuf::{c2s_message, C2sConnectRequest, C2sMessage, s2c_message, S2cConnectAck, S2cMessage};
 use crate::networking_protobuf::c2s_message::Msg::ConnectRequest;
+use crate::networking_protobuf::s2c_message::Msg::ConnectAck;
 
 #[derive(PartialEq)]
 pub enum State {
@@ -51,7 +52,7 @@ impl Networking {
                     let listener = TcpListener::bind("127.0.0.1:1337").unwrap();
                     (listener.incoming().next().unwrap().unwrap(), false, ConnectionType::Host(
                         S2cMessage {
-                            msg: Some(s2c_message::Msg::ConnectAck(S2cConnectAck {
+                            msg: Some(ConnectAck(S2cConnectAck {
                                 success: false,
                                 game_id: Some(game_id),
                                 starting_position: None,
@@ -71,7 +72,7 @@ impl Networking {
                     //     }))
                     // })
                     (stream, true, ConnectionType::Client(C2sMessage{
-                        msg: Some(c2s_message::Msg::ConnectRequest(C2sConnectRequest{
+                        msg: Some(ConnectRequest(C2sConnectRequest{
                             game_id,
                             spectate: false
                         }))
