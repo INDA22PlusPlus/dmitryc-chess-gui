@@ -60,7 +60,7 @@ impl ChessController {
                             self.chess_engine.drag(selected_coords_to_u8, to_coords_u8);
                             self.selected_square = None;
 
-                            self.networking.send_move_packet(selected_coords_to_u8, to_coords_u8);
+                            self.networking.send_move_packet();
                         }
                         else {
                             if !(self.chess_engine.get_piece(to_coords_u8) == ChessPiece::Empty) {

@@ -65,5 +65,6 @@ fn main() {
                 chess_view.draw(&chess_controller, &c, g);
             });
         }
+        println!("Loop complete")
     }
 }

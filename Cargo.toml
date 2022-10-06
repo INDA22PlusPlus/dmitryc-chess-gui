@@ -15,3 +15,4 @@ piston_window = "0.124.0"
 dynchess-lib = { git = "https://github.com/INDA22PlusPlus/imou-chess.git" }
 
 prost = "0.11.0"
+polling = "2.3.0"
