@@ -38,6 +38,7 @@ impl ChessController {
     /// Handles events.
     pub fn event<E: GenericEvent>(&mut self, offset: [f64; 2], size: f64, square_amount: f64, e: &E) {
         // Initial connection
+        // println!("looping event");
         match self.networking.connection.clone() {
             ConnectionType::Host(host) => {
                 if host.msg.is_some(){
@@ -69,6 +70,7 @@ impl ChessController {
         };
 
         // When connected
+        // println!("connected, state: {:?}", self.networking.state);
         match self.networking.state {
             State::Playing => {
                 if let Some(pos) = e.mouse_cursor_args() {
@@ -93,7 +95,11 @@ impl ChessController {
                             self.chess_engine.drag(selected_coords_to_u8, to_coords_u8);
                             self.selected_square = None;
 
+                            // println!("try sending packet");
                             self.networking.send_packet(selected_coords_to_u8, to_coords_u8);
+                            // println!("sent packet");
+                            self.networking.state = State::WaitingForOpponent;
+                            // println!("changing state {:?}", self.networking.state);
                         }
                         else {
                             if !(self.chess_engine.get_piece(to_coords_u8) == ChessPiece::Empty) {
@@ -105,7 +111,7 @@ impl ChessController {
             }
             State::WaitingForOpponent => {
                 if let Some(buf) = self.networking.receive_packet() {
-                    self.networking.state = State::Playing;
+                    // self.networking.state = State::Playing;
 
                     self.chess_engine.drag(buf[0], buf[1]);
                 }

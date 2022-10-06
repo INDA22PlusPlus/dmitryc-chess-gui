@@ -12,7 +12,7 @@ use crate::networking_protobuf::{
     Move
 };
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 pub enum State {
     Playing,
     WaitingForOpponent,
@@ -41,7 +41,7 @@ impl Networking {
     pub(crate) fn new() -> Networking {
         let game_id = 1;
         // A stream and a boolean indicating whether or not the program is a host or a client
-        let (stream, client, mut connection_type) = {
+        let (stream, is_client, mut connection_type) = {
             let mut args = std::env::args();
             // Skip path to program
             args.next();
@@ -95,7 +95,7 @@ impl Networking {
             // from: if client { 0 } else { 63 },
             // to: if client { 63 } else { 0 },
             // Host starts playing and the client waits
-            state: if client {
+            state: if is_client {
                 State::WaitingForOpponent
             } else {
                 State::Playing
@@ -113,10 +113,6 @@ impl Networking {
         let (packet_length, packet_vec) = match self.socket.read(&mut buf) {
             Ok(length) => (length, Some(buf)),
             Err(e) => (0, None)
-            // Err(e) => match e.kind() {
-            //     std::io::ErrorKind::WouldBlock => None,
-            //     _ => panic!("Error: {}", e),
-            // },
         };
 
         if packet_vec.is_some(){
@@ -126,7 +122,12 @@ impl Networking {
                     self.send_packet(0, 0);
 
                     match packet_decoded.clone().unwrap().msg.unwrap() {
-                        c2s_message::Msg::Move(_) => {}
+                        c2s_message::Msg::Move(_) => {
+                            self.state = State::Playing;
+                            self.connection = ConnectionType::Host(
+                                S2cMessage{ msg: None }
+                            );
+                        }
                         c2s_message::Msg::ConnectRequest(_) => {
                             self.connection = ConnectionType::Host(
                                 S2cMessage {
@@ -139,6 +140,9 @@ impl Networking {
                                 }
                             );
                             self.send_packet(0, 0);
+                            self.connection = ConnectionType::Host(
+                                S2cMessage{ msg: None }
+                            );
                         }
                     }
                     println!("{:?}", packet_decoded);
@@ -147,7 +151,9 @@ impl Networking {
                     let packet_decoded = S2cMessage::decode(&buf[0..packet_length]);
 
                     match packet_decoded.clone().unwrap().msg.unwrap() {
-                        s2c_message::Msg::Move(_) => {}
+                        s2c_message::Msg::Move(_) => {
+                            self.state = State::Playing;
+                        }
                         s2c_message::Msg::ConnectAck(_) => {
                             self.connection = ConnectionType::Client(
                                 C2sMessage{ msg: None }
@@ -180,7 +186,7 @@ impl Networking {
         self.socket
             .write(&buf)
             .expect("Failed to send move packet");
-        self.state = State::WaitingForOpponent;
+        // self.state = State::WaitingForOpponent;
         // println!("Packet send: {:?}", buf);
     }
 
