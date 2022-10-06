@@ -36,7 +36,7 @@ impl ChessController {
 
     /// Handles events.
     pub fn event<E: GenericEvent>(&mut self, offset: [f64; 2], size: f64, square_amount: f64, e: &E) {
-        match self.networking.state {
+        match self.networking.socket {
             State::Playing => {
                 if let Some(pos) = e.mouse_cursor_args() {
                     self.mouse_coords = pos;
@@ -72,7 +72,7 @@ impl ChessController {
             }
             State::WaitingForOpponent => {
                 if let Some(buf) = self.networking.receive_move_packet() {
-                    self.networking.state = State::Playing;
+                    self.networking.socket = State::Playing;
 
                     self.chess_engine.drag(buf[0], buf[1]);
                 }

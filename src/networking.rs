@@ -3,7 +3,7 @@ use std::{
     net::{TcpListener, TcpStream},
 };
 use dynchess_lib::ChessBoard;
-use crate::networking_protobuf::{c2s_message, C2sConnectRequest, C2sMessage, S2cMessage};
+use crate::networking_protobuf::{c2s_message, C2sConnectRequest, C2sMessage, s2c_message, S2cConnectAck, S2cMessage};
 use crate::networking_protobuf::c2s_message::Msg::ConnectRequest;
 
 #[derive(PartialEq)]
@@ -12,26 +12,27 @@ pub enum State {
     WaitingForOpponent,
 }
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Clone)]
 pub enum ConnectionType {
-    host(S2cMessage),
-    client(C2sMessage),
+    Host(S2cMessage),
+    Client(C2sMessage),
 }
 
 pub struct Networking {
     // Logic
     // pub from: u8,
     // pub to: u8,
-    pub state: State,
+    pub socket: State,
 
     // Networking
     pub stream: TcpStream,
 
-    connection_type: ConnectionType,
+    connection: ConnectionType,
 }
 
 impl Networking {
     pub(crate) fn new() -> Networking {
+        let game_id = 1;
         // A stream and a boolean indicating whether or not the program is a host or a client
         let (stream, client, connection_type) = {
             let mut args = std::env::args();
@@ -48,8 +49,15 @@ impl Networking {
                 // connection then we return the stream.
                 "--host" => {
                     let listener = TcpListener::bind("127.0.0.1:1337").unwrap();
-                    (listener.incoming().next().unwrap().unwrap(), false, ConnectionType::host(
-                        S2cMessage{ msg: None })
+                    (listener.incoming().next().unwrap().unwrap(), false, ConnectionType::Host(
+                        S2cMessage {
+                            msg: Some(s2c_message::Msg::ConnectAck(S2cConnectAck {
+                                success: false,
+                                game_id: Some(game_id),
+                                starting_position: None,
+                                client_is_white: None
+                            }))
+                        })
                     )
                 }
                 // If the program is running as a client we connect to the specified IP address and
@@ -62,9 +70,9 @@ impl Networking {
                     //         game_id: 0, spectate: false
                     //     }))
                     // })
-                    (stream, true, ConnectionType::client(C2sMessage{
+                    (stream, true, ConnectionType::Client(C2sMessage{
                         msg: Some(c2s_message::Msg::ConnectRequest(C2sConnectRequest{
-                            game_id: 1,
+                            game_id,
                             spectate: false
                         }))
                     }))
@@ -83,19 +91,19 @@ impl Networking {
             // from: if client { 0 } else { 63 },
             // to: if client { 63 } else { 0 },
             // Host starts playing and the client waits
-            state: if client {
+            socket: if client {
                 State::WaitingForOpponent
             } else {
                 State::Playing
             },
             stream,
-            connection_type
+            connection: connection_type
         }
     }
 
     /// Checks if a move packet is available in returns the new positions otherwise it returns none
-    pub fn receive_move_packet(&mut self) -> Option<[u8; 2]> {
-        let mut buf = [0u8; 2];
+    pub fn receive_move_packet(&mut self) -> Option<[u8; 512]> {
+        let mut buf = [0u8; 512];
         let packet  = match self.stream.read(&mut buf) {
             Ok(_) => Some(buf),
             Err(e) => match e.kind() {
@@ -114,22 +122,30 @@ impl Networking {
     pub fn send_move_packet(&mut self, from: u8, to: u8) {
         // self.from = from;
         // self.to = to;
-        let mut buf = [from, to];
+        let mut buf = match self.connection.clone() {
+            ConnectionType::Host(host) => {
+                prost::Message::encode_to_vec(&host)
+            }
+            ConnectionType::Client(client) => {
+                prost::Message::encode_to_vec(&client)
+            }
+        };
+
         self.stream
             .write(&buf)
             .expect("Failed to send move packet");
-        self.state = State::WaitingForOpponent;
+        self.socket = State::WaitingForOpponent;
         // println!("Packet send: {:?}", buf);
     }
 
     pub fn update(&mut self) {
-        match self.state {
+        match self.socket {
             State::Playing => {}
             State::WaitingForOpponent => {
                 // If we received at move packet we first set the enemy pos to the received
                 // position and then set the state to playing
                 if let Some(pos) = self.receive_move_packet() {
-                    self.state = State::Playing;
+                    self.socket = State::Playing;
                     // self.enemy_pos = pos;
                 }
             }
