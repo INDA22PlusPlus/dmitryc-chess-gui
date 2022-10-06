@@ -55,7 +55,8 @@ impl Networking {
                 // If the program is running as host we listen on port 8080 until we get a
                 // connection then we return the stream.
                 "--host" => {
-                    let listener = TcpListener::bind("127.0.0.1:1337").unwrap();
+                    let ip = args.next().expect("Expected ip address after --client");
+                    let listener = TcpListener::bind(ip).unwrap();
                     (listener.incoming().next().unwrap().unwrap(), false, ConnectionType::Host(
                         S2cMessage {
                             msg: Some(s2c_message::Msg::ConnectAck(S2cConnectAck {
@@ -107,26 +108,31 @@ impl Networking {
     }
 
     /// Checks if a move packet is available in returns the new positions otherwise it returns none
-    pub fn receive_packet(&mut self) -> Option<[u8; 512]> {
+    pub fn receive_packet(&mut self) -> Option<[u8; 2]> {
         // println!("Received packet");
         let mut buf = [0u8; 512];
-        let (packet_length, packet_vec) = match self.socket.read(&mut buf) {
-            Ok(length) => (length, Some(buf)),
-            Err(e) => (0, None)
+        let mut coords = None;
+        let (packet_length, packet_ok) = match self.socket.read(&mut buf) {
+            Ok(length) => (length, true),
+            Err(e) => (0, false)
         };
 
-        if packet_vec.is_some(){
+        if packet_ok {
+            println!("Packet is ok");
             match &self.connection {
                 ConnectionType::Host(host) => {
                     let packet_decoded = C2sMessage::decode(&buf[0..packet_length]);
-                    self.send_packet(0, 0);
-
                     match packet_decoded.clone().unwrap().msg.unwrap() {
-                        c2s_message::Msg::Move(_) => {
-                            self.state = State::Playing;
+                        c2s_message::Msg::Move(move_packet) => {
                             self.connection = ConnectionType::Host(
                                 S2cMessage{ msg: None }
                             );
+                            coords = Some([
+                                move_packet.from_square as u8,
+                                move_packet.to_square as u8
+                            ]);
+                            self.state = State::Playing;
+                            println!("changed state, returned new coords");
                         }
                         c2s_message::Msg::ConnectRequest(_) => {
                             self.connection = ConnectionType::Host(
@@ -139,7 +145,7 @@ impl Networking {
                                     }))
                                 }
                             );
-                            self.send_packet(0, 0);
+                            self.send_packet(None);
                             self.connection = ConnectionType::Host(
                                 S2cMessage{ msg: None }
                             );
@@ -151,13 +157,21 @@ impl Networking {
                     let packet_decoded = S2cMessage::decode(&buf[0..packet_length]);
 
                     match packet_decoded.clone().unwrap().msg.unwrap() {
-                        s2c_message::Msg::Move(_) => {
+                        s2c_message::Msg::Move(move_packet) => {
+                            coords = Some([
+                                move_packet.from_square as u8,
+                                move_packet.to_square as u8
+                            ]);
                             self.state = State::Playing;
+                            println!("changed state, returned new coords");
                         }
-                        s2c_message::Msg::ConnectAck(_) => {
-                            self.connection = ConnectionType::Client(
-                                C2sMessage{ msg: None }
-                            );
+                        s2c_message::Msg::ConnectAck(con_ack) => {
+                            if con_ack.success {
+                                println!("successful connection");
+                                self.connection = ConnectionType::Client(
+                                    C2sMessage{ msg: None }
+                                );
+                            }
                         }
                         s2c_message::Msg::MoveAck(_) => {}
                     }
@@ -167,19 +181,41 @@ impl Networking {
             };
         }
 
-        packet_vec
+        coords
     }
 
     /// Sends a move packet of the current position and sets the state to waiting
-    pub fn send_packet(&mut self, from: u8, to: u8) {
-        // self.from = from;
-        // self.to = to;
+    pub fn send_packet(&mut self, coords: Option<[u8; 2]>) {
         let mut buf = match self.connection.clone() {
             ConnectionType::Host(host) => {
-                prost::Message::encode_to_vec(&host)
+                let mut new_host= host;
+                if let Some(coords_vec) = coords {
+                    new_host = S2cMessage {
+                        msg: Some(s2c_message::Msg::Move(Move {
+                            from_square: coords_vec[0] as u32,
+                            to_square: coords_vec[1] as u32,
+                            promotion: None
+                        }))
+                    };
+                    println!("changed cords to send them {:?}", coords_vec);
+                }
+
+                prost::Message::encode_to_vec(&new_host)
             }
             ConnectionType::Client(client) => {
-                prost::Message::encode_to_vec(&client)
+                let mut new_client= client;
+                if let Some(coords_vec) = coords {
+                    new_client = C2sMessage {
+                        msg: Some(c2s_message::Msg::Move(Move {
+                            from_square: coords_vec[0] as u32,
+                            to_square: coords_vec[1] as u32,
+                            promotion: None
+                        }))
+                    };
+                    println!("changed cords to send them {:?}", coords_vec);
+                }
+
+                prost::Message::encode_to_vec(&new_client)
             }
         };
 

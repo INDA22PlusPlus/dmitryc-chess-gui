@@ -60,7 +60,7 @@ impl ChessController {
                         // c2s_message::Msg::Move(_) => {}
                         c2s_message::Msg::ConnectRequest(_) => {
                             self.networking.receive_packet();
-                            self.networking.send_packet(0, 0);
+                            self.networking.send_packet(None);
                             return
                         }
                         _ => {}
@@ -96,7 +96,7 @@ impl ChessController {
                             self.selected_square = None;
 
                             // println!("try sending packet");
-                            self.networking.send_packet(selected_coords_to_u8, to_coords_u8);
+                            self.networking.send_packet(Some([selected_coords_to_u8, to_coords_u8]));
                             // println!("sent packet");
                             self.networking.state = State::WaitingForOpponent;
                             // println!("changing state {:?}", self.networking.state);
