@@ -1,3 +1,5 @@
+extern crate core;
+
 use glutin_window::GlutinWindow;
 use piston::event_loop::{EventSettings, Events};
 use piston::{EventLoop, RenderEvent, WindowSettings};

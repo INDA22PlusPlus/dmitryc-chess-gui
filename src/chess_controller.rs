@@ -5,7 +5,8 @@ use std::num::IntErrorKind::Empty;
 use piston::GenericEvent;
 use piston::input::{Button, MouseButton};
 use dynchess_lib::{ChessBoard, ChessPiece};
-use crate::networking::{Networking, State};
+use crate::networking::{ConnectionType, Networking, State};
+use crate::networking_protobuf::{S2cConnectAck, S2cMessage, s2c_message, c2s_message};
 
 /// Handles events for Chess.
 pub struct ChessController {
@@ -36,7 +37,39 @@ impl ChessController {
 
     /// Handles events.
     pub fn event<E: GenericEvent>(&mut self, offset: [f64; 2], size: f64, square_amount: f64, e: &E) {
-        match self.networking.socket {
+        // Initial connection
+        match self.networking.connection.clone() {
+            ConnectionType::Host(host) => {
+                if host.msg.is_some(){
+                    match host.msg.unwrap() {
+                        // s2c_message::Msg::Move(_) => {}
+                        s2c_message::Msg::ConnectAck(_) => {
+                            self.networking.receive_packet();
+                            // self.networking.send_packet(0, 0);
+                            return
+                        }
+                        // s2c_message::MsgMsg::MoveAck(_) => {}
+                        _ => {}
+                    }
+                }
+            }
+            ConnectionType::Client(client) => {
+                if client.msg.is_some() {
+                    match client.msg.unwrap() {
+                        // c2s_message::Msg::Move(_) => {}
+                        c2s_message::Msg::ConnectRequest(_) => {
+                            self.networking.receive_packet();
+                            self.networking.send_packet(0, 0);
+                            return
+                        }
+                        _ => {}
+                    }
+                }
+            }
+        };
+
+        // When connected
+        match self.networking.state {
             State::Playing => {
                 if let Some(pos) = e.mouse_cursor_args() {
                     self.mouse_coords = pos;
@@ -60,7 +93,7 @@ impl ChessController {
                             self.chess_engine.drag(selected_coords_to_u8, to_coords_u8);
                             self.selected_square = None;
 
-                            self.networking.send_move_packet(selected_coords_to_u8, to_coords_u8);
+                            self.networking.send_packet(selected_coords_to_u8, to_coords_u8);
                         }
                         else {
                             if !(self.chess_engine.get_piece(to_coords_u8) == ChessPiece::Empty) {
@@ -71,8 +104,8 @@ impl ChessController {
                 }
             }
             State::WaitingForOpponent => {
-                if let Some(buf) = self.networking.receive_move_packet() {
-                    self.networking.socket = State::Playing;
+                if let Some(buf) = self.networking.receive_packet() {
+                    self.networking.state = State::Playing;
 
                     self.chess_engine.drag(buf[0], buf[1]);
                 }
