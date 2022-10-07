@@ -39,7 +39,7 @@ fn main() {
         _ => panic!("Unknown command: {}", host_or_client),
     };
 
-    let settings = WindowSettings::new(name, (600, 600))
+    let mut settings = WindowSettings::new(name, (600, 600))
         .exit_on_esc(true)
         .graphics_api(opengl)
         .vsync(true);
@@ -47,7 +47,7 @@ fn main() {
     let mut window: GlutinWindow =
         settings.build().expect("Could not create window");
 
-    let mut events = Events::new(EventSettings::new().lazy(true));
+    let mut events = Events::new(EventSettings::new().lazy(false));
     let mut gl = GlGraphics::new(opengl);
 
     let mut chess_controller = ChessController::new();
